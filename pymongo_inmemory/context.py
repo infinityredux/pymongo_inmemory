@@ -150,8 +150,19 @@ class Context:
     def _build_operating_system_info(self, os_name=None):
         os_name = conf("operating_system", os_name)
         if os_name is None:
-            _mapping = {"Darwin": "osx", "Linux": "linux", "Windows": "windows"}
-            os_name = _mapping.get(platform.system())
+            # Fix for using platform.system() yields will yield 'linux'
+            platform_uname = platform.uname().version.lower()
+            is_ubuntu = 'ubuntu' in platform_uname
+            is_debian = 'debian' in platform_uname
+            if is_ubuntu:
+                system = 'ubuntu'
+            elif is_debian:
+                system = 'debian'
+            else:
+                system = platform.system()
+
+            _mapping = {"Darwin": "osx", "Linux": "linux", "Windows": "windows", 'ubuntu': 'ubuntu', 'debian': 'debian'}
+            os_name = _mapping.get(system)
             if os_name is None:
                 raise OperatingSystemNotFound("Can't determine operating system.")
         return os_name
