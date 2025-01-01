@@ -6,6 +6,19 @@ A mongo mocking library with an ephemeral MongoDB running in memory.
 
 ## What's new?
 
+### v0.4.1
+
+- Updated dependencies, to resolve dependabot pull requests from the original repository.
+- Replicated fix for default engine for MongoDB version >6. 
+  [#97](https://github.com/kaizendorks/pymongo_inmemory/issues/97)
+  [#121](https://github.com/kaizendorks/pymongo_inmemory/issues/121)
+  [PR #119](https://github.com/kaizendorks/pymongo_inmemory/pull/119)
+- Replicated fix for detecting difference between Ubuntu and Debian.
+  [#115](https://github.com/kaizendorks/pymongo_inmemory/issues/115)
+  [PR #114](https://github.com/kaizendorks/pymongo_inmemory/pull/114) 
+
+## Previous repository changes
+
 ### v0.4.0
 
 - Tooling enhancements. [[PR #90](https://github.com/kaizendorks/pymongo_inmemory/pull/90)]
