@@ -5,7 +5,7 @@ import os
 from os import path
 import platform
 
-from ._utils import mkdir_ifnot_exist
+from ._utils import mkdir_ifnot_exist, make_semver
 from .downloader._urls import best_url
 
 DEFAULT_CONF = {}
@@ -127,7 +127,7 @@ class Context:
         )
         self.archive_folder = mkdir_ifnot_exist(self.download_folder, self.url_hash)
         self.extracted_folder = mkdir_ifnot_exist(self.extract_folder, self.url_hash)
-        self.storage_engine = conf("storage_engine", "ephemeralForTest")
+        self.storage_engine = self._build_storage_engine()
 
     def __str__(self):
         return (
@@ -150,8 +150,19 @@ class Context:
     def _build_operating_system_info(self, os_name=None):
         os_name = conf("operating_system", os_name)
         if os_name is None:
-            _mapping = {"Darwin": "osx", "Linux": "linux", "Windows": "windows"}
-            os_name = _mapping.get(platform.system())
+            # Fix for using platform.system() yields will yield 'linux'
+            platform_uname = platform.uname().version.lower()
+            is_ubuntu = 'ubuntu' in platform_uname
+            is_debian = 'debian' in platform_uname
+            if is_ubuntu:
+                system = 'ubuntu'
+            elif is_debian:
+                system = 'debian'
+            else:
+                system = platform.system()
+
+            _mapping = {"Darwin": "osx", "Linux": "linux", "Windows": "windows", 'ubuntu': 'ubuntu', 'debian': 'debian'}
+            os_name = _mapping.get(system)
             if os_name is None:
                 raise OperatingSystemNotFound("Can't determine operating system.")
         return os_name
@@ -165,3 +176,8 @@ class Context:
 
         self.downloaded_version = downloaded_version
         return dl_url
+
+    def _build_storage_engine(self):
+        major, minor, patch = make_semver(self.downloaded_version)
+        storage_engine_fallback = "wiredTiger" if major > 6 else "ephemeralForTest"
+        return conf("storage_engine", storage_engine_fallback)
