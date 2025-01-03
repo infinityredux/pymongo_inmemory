@@ -16,7 +16,7 @@ def find_open_port(sq):
                 return port
 
 
-def make_semver(version=None):
+def make_semver(version: str | None = None) -> SemVer:
     if version is None:
         return SemVer(None, None, None)
 
@@ -35,7 +35,7 @@ def make_semver(version=None):
     return SemVer(major, minor, patch)
 
 
-def mkdir_ifnot_exist(*folders):
+def mkdir_if_not_exist(*folders):
     current_path = path.join(folders[0])
     if not path.isdir(current_path):
         os.mkdir(current_path)

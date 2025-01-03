@@ -21,7 +21,12 @@ class OperatingSystemVersionNotFound(ValueError):
     pass
 
 
-def best_url(os_name, version=None, os_ver=None, url_tree=None):
+def best_url(
+        os_name,
+        version: str | None = None,
+        os_ver: str | None = None,
+        url_tree: dict[str, dict] | None = None,
+):
     if url_tree is None:
         url_tree = URLS
 
@@ -29,7 +34,7 @@ def best_url(os_name, version=None, os_ver=None, url_tree=None):
         os_branch = url_tree[str(os_name).lower()]
     except KeyError:
         raise OperatingSystemNameNotFound(
-            "Can't find a MongoDB for this OS: {}".format(os_name)
+            f"Can't find a MongoDB for this OS: {os_name}"
         )
 
     if os_ver is None:
@@ -40,10 +45,8 @@ def best_url(os_name, version=None, os_ver=None, url_tree=None):
     os_ver = str(os_ver)
     if os_ver not in os_branch.keys():
         raise OperatingSystemVersionNotFound(
-            (
-                "Can't find a MongoDB for OS {} "
-                "version {}, available OS versions: {}"
-            ).format(os_name, os_ver, os_branch.keys())
+            f"Can't find a MongoDB for OS {os_name} version {os_ver}, "
+            f"available OS versions: {os_branch.keys()}"
         )
 
     version_branch = os_branch[os_ver]
@@ -59,13 +62,9 @@ def best_url(os_name, version=None, os_ver=None, url_tree=None):
     elif patch not in version_branch[major][minor]["patches"]:
         patch = max(version_branch[major][minor]["patches"])
 
-    logger.info(
-        "Requested MongoDB version {}, found version: {}.{}.{}".format(
-            version, major, minor, patch
-        )
-    )
-    version = "{}.{}.{}".format(major, minor, patch)
-    return version_branch[major][minor]["url"].format(version), version
+    found_version = f"{major}.{minor}.{patch}"
+    logger.info(f"Requested MongoDB version {version}, found version: {found_version}")
+    return version_branch[major][minor]["url"].format(found_version), found_version
 
 
 def expand_url_tree(tree) -> Generator[ExpandedURL, None, None]:
