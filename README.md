@@ -6,7 +6,12 @@ A mongo mocking library with an ephemeral MongoDB running in memory.
 
 ## What's new?
 
-### v0.4.1
+### v0.6.0
+
+- Refactored designs of the `context` and `mongod` modules with a variety of changes.
+- Implemented a simple mechanism that should (in theory) make this work with a solo replica set. 
+
+### v0.5.0
 
 - Updated dependencies, to resolve dependabot pull requests from the original repository.
 - Replicated fix for default engine for MongoDB version >6. 

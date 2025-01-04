@@ -59,11 +59,11 @@ def test_make_semver():
 
 def test_make_folder(monkeypatch, tmpdir):
     assert path.samefile(
-        _utils.mkdir_ifnot_exist(tmpdir, "test"), path.join(tmpdir, "test")
+        _utils.mkdir_if_not_exist(tmpdir, "test"), path.join(tmpdir, "test")
     )
     assert path.exists(path.join(tmpdir, "test"))
     assert path.samefile(
-        _utils.mkdir_ifnot_exist(tmpdir, "test2", "nested"),
+        _utils.mkdir_if_not_exist(tmpdir, "test2", "nested"),
         path.join(tmpdir, "test2", "nested"),
     )
     assert path.exists(path.join(tmpdir, "test2", "nested"))

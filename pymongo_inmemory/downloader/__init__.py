@@ -114,14 +114,14 @@ def download(pim_context: Context):
     should_ignore_cache = pim_context.ignore_cache
 
     logger.debug("Downloading MongoD from {}".format(dl_url))
-    archive_file = path.join(pim_context.archive_folder, "archive")
+    archive_file = path.join(pim_context.download_folder, "archive")
 
     if should_ignore_cache or not path.isfile(archive_file):
         logger.info("Archive file is not found, {}".format(archive_file))
         _download_file(dl_url, archive_file)
-        _extract(archive_file, pim_context.extracted_folder)
+        _extract(archive_file, pim_context.extract_folder)
 
-    if _get_mongod(pim_context.extracted_folder) is None:
-        _extract(archive_file, pim_context.extracted_folder)
+    if _get_mongod(pim_context.extract_folder) is None:
+        _extract(archive_file, pim_context.extract_folder)
 
-    return path.dirname(_get_mongod(pim_context.extracted_folder))
+    return path.dirname(_get_mongod(pim_context.extract_folder))

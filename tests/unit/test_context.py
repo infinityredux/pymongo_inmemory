@@ -13,16 +13,16 @@ def test_environment_var_option(monkeypatch):
     assert context.conf("SOME_OTHER_VALUE") is None
 
 
-def test_env_folders_overwrite_default_downloadfolder(monkeypatch):
+def test_env_folders_overwrite_default_download_folder(monkeypatch):
     monkeypatch.setenv("PYMONGOIM__DOWNLOAD_FOLDER", "test_folder")
     pim_context = context.Context()
-    assert pim_context.download_folder == "test_folder"
+    assert "/test_folder/" in pim_context.download_folder
 
 
-def test_env_folders_overwrite_default_extractfolder(monkeypatch):
+def test_env_folders_overwrite_default_extract_folder(monkeypatch):
     monkeypatch.setenv("PYMONGOIM__EXTRACT_FOLDER", "test_folder")
     pim_context = context.Context()
-    assert pim_context.extract_folder == "test_folder"
+    assert "/test_folder/" in pim_context.extract_folder
 
 
 def test_fails_if_os_unknown(monkeypatch):
@@ -49,7 +49,8 @@ def test_download_url_setting(monkeypatch):
     monkeypatch.setenv("PYMONGOIM__DOWNLOAD_URL", provided_url)
     pim_context = context.Context()
     assert pim_context.download_url == provided_url
-    assert pim_context.url_hash == expected_hash
+    assert expected_hash in pim_context.download_folder
+    assert expected_hash in pim_context.extract_folder
 
 
 def test_expected_type_coercion(monkeypatch):
@@ -62,10 +63,10 @@ def test_expected_type_coercion(monkeypatch):
     assert pim_context.mongod_port == 42
 
 
-def test_type_coercion_uncoercible_values(monkeypatch):
+def test_type_coercion_invalid_types(monkeypatch):
     monkeypatch.setenv("PYMONGOIM__MONGOD_PORT", "something")
     monkeypatch.setenv("PYMONGOIM__IGNORE_CACHE", "true")
-    monkeypatch.setenv("PYMONGOIM__USE_LOCAL_MONGOD", "false")
+    monkeypatch.setenv("PYMONGOIM__USE_LOCAL_MONGOD", "true")
     pim_context = context.Context()
     assert not pim_context.ignore_cache
     assert not pim_context.use_local_mongod
