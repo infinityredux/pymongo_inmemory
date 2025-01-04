@@ -122,6 +122,7 @@ class Context:
         self.os_version: str | None = conf("os_version", os_ver)
         self.ignore_cache: bool = conf("ignore_cache", ignore_cache, coerce_with=bool)
         self.use_local_mongod: bool = conf("use_local_mongod", False, coerce_with=bool)
+        self.replica_set: str | None = conf("replica_set", None)
 
         # Handle allowing override via download url, but if present it does mean
         # we cannot guarantee the version number. Overriding this default also
@@ -148,6 +149,7 @@ class Context:
             f"MongoD Port {self.mongod_port}\n"
             f"MongoD Data Folder {self.mongod_data_folder}\n"
             f"Database Name {self.dbname}\n"
+            f"Replica Set {self.replica_set}\n"
             f"OS Name {self.operating_system}\n"
             f"OS Version {self.os_version}\n"
             f"Download URL {self.download_url}\n"
