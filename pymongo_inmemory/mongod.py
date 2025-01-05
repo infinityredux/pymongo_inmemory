@@ -146,7 +146,7 @@ class Mongod:
             boot_command.append("--storageEngine")
             boot_command.append(self.config.engine)
         if self.config.replica_set is not None:
-            boot_command.append("--replSetName")
+            boot_command.append("--replSet")
             boot_command.append(self.config.replica_set)
         logger.debug(boot_command)
         self._proc = subprocess.Popen(boot_command)
