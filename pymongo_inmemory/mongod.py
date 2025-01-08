@@ -66,7 +66,7 @@ class MongodConfig:
         return self._context.replica_set
 
     @property
-    def connection_string(self) -> str | None:
+    def direct_connection_string(self) -> str | None:
         host = self.local_address
         if self._context.mongo_client_host is not None:
             if self._context.mongo_client_host.startswith("mongodb://"):
@@ -79,15 +79,19 @@ class MongodConfig:
             url = f"mongodb://{host}:{port}"
             if self._context.dbname is not None:
                 url += f"/{self._context.dbname}"
-            if self._context.replica_set is not None:
-                url += f"?replicaSet={self._context.replica_set}"
-
             return url
+
+    @property
+    def connection_string(self) -> str | None:
+        direct = self.direct_connection_string
+        if direct is None or self._context.replica_set is None:
+            return direct
+        return f"{direct}?replicaSet={self._context.replica_set}"
 
 
 class Mongod:
     """Wrapper for MongoDB daemon instance. Can be used with context managers.
-    During contruction it calls `download` function of `downloader` to get the
+    During construction it calls `download` function of `downloader` to get the
     defined MongoDB version.
 
     Daemon is managed by `subprocess.Popen`. all Popen objects are registered
@@ -130,7 +134,6 @@ class Mongod:
         self._check_lock()
 
         logger.info("Starting mongod with {cs}...".format(cs=self.connection_string))
-        # noinspection SpellCheckingInspection
         boot_command: list[str] = [
             os.path.join(self._bin_folder, "mongod"),
             "--dbpath",
@@ -148,16 +151,51 @@ class Mongod:
         if self.config.replica_set is not None:
             boot_command.append("--replSet")
             boot_command.append(self.config.replica_set)
+
         logger.debug(boot_command)
         self._proc = subprocess.Popen(boot_command)
         _popen_objs.append(self._proc)
 
-        count = 0
-        while not self.is_healthy:
-            time.sleep(0.1)
-            count += 1
-            if count >= 200:
-                raise RuntimeError("Mongo server failed to start within 20 seconds, please check logs.")
+        max_retries = 10
+        retry_interval = 1
+        for attempt in range(max_retries):
+            temp_client = pymongo.MongoClient(
+                self.config.direct_connection_string,  # f"mongodb://{self.config.local_address}:{self.config.port}",
+                serverSelectionTimeoutMS=1000,
+                directConnection=True
+            )
+            try:
+                temp_client.admin.command('ping')
+                logger.info("Server is available")
+
+                if self.config.replica_set is not None:
+                    logger.info("Initializing replica set...")
+                    try:
+                        config = {
+                            '_id': self.config.replica_set,
+                            'members': [{
+                                '_id': 0,
+                                'host': self.config.local_address,
+                                'priority': 1
+                            }]
+                        }
+                        temp_client.admin.command('replSetInitiate', config)
+                    except Exception as e:
+                        logger.error(f"Failed to configure replica set: {e}")
+                        self.stop()
+                        raise
+
+                break
+
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    logger.error(f"Server failed to start after {max_retries} attempts: {e}")
+                    self.stop()
+                    raise
+                logger.debug(f"Server not yet available (attempt {attempt + 1}/{max_retries})")
+                time.sleep(retry_interval)
+            finally:
+                temp_client.close()
 
         logger.info("Started mongod.")
         logger.info("Connect with: {cs}".format(cs=self.connection_string))
@@ -240,7 +278,7 @@ class Mongod:
 
 if __name__ == "__main__":
     # This part is used for integrity tests too.
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     main_context = Context()
     with Mongod(main_context) as md:
         try:
