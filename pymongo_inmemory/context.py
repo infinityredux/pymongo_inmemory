@@ -193,7 +193,12 @@ class Context:
             storage_engine_fallback = None
         else:
             major, minor, patch = make_semver(self.downloaded_version)
-            storage_engine_fallback = "wiredTiger" if major > 6 else "ephemeralForTest"
+            # MongoDB updated 'ephemeralForTest' in 5.0, then deprecated it and
+            # removed it in 7.0, so technically no longer "in memory." There is
+            # a new in memory engine, but as per the official documentation, the
+            # 'inMemory' engine is 'Available in MongoDB Enterprise only':
+            # https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.engine
+            storage_engine_fallback = "wiredTiger" if major >= 7 else "ephemeralForTest"
         result = conf("storage_engine", storage_engine_fallback)
         if result is None:
             ValueError("Download version could not be determined and no storage engine was specified.")

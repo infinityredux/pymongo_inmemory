@@ -6,6 +6,11 @@ A mongo mocking library with an ephemeral MongoDB running in memory.
 
 ## What's new?
 
+### v0.6.1
+
+- Fixed incorrect replica set command (mis-read docs.)
+- Updated replica set handling to send initialisation command.
+
 ### v0.6.0
 
 - Refactored designs of the `context` and `mongod` modules with a variety of changes.
