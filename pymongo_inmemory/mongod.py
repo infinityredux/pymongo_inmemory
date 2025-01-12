@@ -160,8 +160,9 @@ class Mongod:
         retry_interval = 1
         for attempt in range(max_retries):
             temp_client = pymongo.MongoClient(
-                self.config.direct_connection_string,  # f"mongodb://{self.config.local_address}:{self.config.port}",
-                serverSelectionTimeoutMS=1000,
+                self.config.direct_connection_string,
+                serverSelectionTimeoutMS=2000,
+                connectTimeoutMS=2000,
                 directConnection=True
             )
             try:
@@ -192,7 +193,7 @@ class Mongod:
                     logger.error(f"Server failed to start after {max_retries} attempts: {e}")
                     self.stop()
                     raise
-                logger.debug(f"Server not yet available (attempt {attempt + 1}/{max_retries})")
+                logger.info(f"Server not yet available (attempt {attempt + 1}/{max_retries})")
                 time.sleep(retry_interval)
             finally:
                 temp_client.close()
