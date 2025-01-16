@@ -35,6 +35,30 @@ def make_semver(version: str | None = None) -> SemVer:
     return SemVer(major, minor, patch)
 
 
+def compare_semver_greater(base: SemVer, compare: SemVer) -> bool:
+    try:
+        if compare.major is None or base.major > compare.major:
+            return False
+        elif base.major < compare.major:
+            return True
+
+        if compare.minor is None or base.minor > compare.minor:
+            return False
+        elif base.minor < compare.minor:
+            return True
+
+        if compare.patch is None or base.patch > compare.patch:
+            return False
+        elif base.patch < compare.patch:
+            return True
+    except TypeError:
+        # TypeError: can't compare NoneType to int
+        # Will only happy if the base value is None and compare is not
+        return True
+    # If we get here, then the base version and compare version are equal
+    return False
+
+
 def mkdir_if_not_exist(*folders):
     current_path = path.join(folders[0])
     if not path.isdir(current_path):
