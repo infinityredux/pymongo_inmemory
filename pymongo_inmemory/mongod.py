@@ -15,7 +15,7 @@ from tempfile import TemporaryDirectory
 
 import pymongo
 
-from ._utils import find_open_port
+from ._utils import extract_server_config_from_connection_string, find_open_port
 from .downloader import download
 from .context import Context
 
@@ -156,38 +156,27 @@ class Mongod:
         self._proc = subprocess.Popen(boot_command)
         _popen_objs.append(self._proc)
 
-        max_retries = 10
-        retry_interval = 1
+        # time.sleep(0.5)
+        if self._proc.poll() is not None:
+            raise RuntimeError(f"MongoDB process failed to start. Exit code: {self._proc.returncode}")
+
+        max_retries = 20
+        retry_interval = 0.5
+        direct = self.config.direct_connection_string
         for attempt in range(max_retries):
+            if self._proc.poll() is not None:
+                raise RuntimeError(f"MongoDB process terminated unexpectedly. Exit code: {self._proc.returncode}")
+            
             temp_client = pymongo.MongoClient(
-                self.config.direct_connection_string,
-                serverSelectionTimeoutMS=2000,
-                connectTimeoutMS=2000,
+                direct,
+                serverSelectionTimeoutMS=500,
+                connectTimeoutMS=500,
                 directConnection=True
             )
             try:
                 temp_client.admin.command('ping')
                 logger.info("Server is available")
-
-                if self.config.replica_set is not None:
-                    logger.info("Initializing replica set...")
-                    try:
-                        config = {
-                            '_id': self.config.replica_set,
-                            'members': [{
-                                '_id': 0,
-                                'host': self.config.local_address,
-                                'priority': 1
-                            }]
-                        }
-                        temp_client.admin.command('replSetInitiate', config)
-                    except Exception as e:
-                        logger.error(f"Failed to configure replica set: {e}")
-                        self.stop()
-                        raise
-
                 break
-
             except Exception as e:
                 if attempt == max_retries - 1:
                     logger.error(f"Server failed to start after {max_retries} attempts: {e}")
@@ -197,6 +186,32 @@ class Mongod:
                 time.sleep(retry_interval)
             finally:
                 temp_client.close()
+
+        if self.config.replica_set is not None:
+            logger.info("Initializing replica set...")
+            temp_client = pymongo.MongoClient(
+                direct,
+                serverSelectionTimeoutMS=2000,
+                connectTimeoutMS=2000,
+                directConnection=True
+            )
+
+            deconstructed = extract_server_config_from_connection_string(direct)
+            try:
+                config = {
+                    '_id': self.config.replica_set,
+                    'members': [{
+                        '_id': 0,
+                        'host': f"{deconstructed['host']}:{deconstructed['port']}",
+                        'priority': 1
+                    }]
+                }
+                temp_client.admin.command('replSetInitiate', config)
+            except Exception as e:
+                logger.error(f"Failed to configure replica set: {e}")
+                self.stop()
+                raise
+
 
         logger.info("Started mongod.")
         logger.info("Connect with: {cs}".format(cs=self.connection_string))
