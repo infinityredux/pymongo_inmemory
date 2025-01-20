@@ -1,5 +1,6 @@
 from collections import namedtuple
 import logging
+import re
 import socket
 import os
 from os import path
@@ -68,3 +69,35 @@ def mkdir_if_not_exist(*folders):
         if not path.isdir(current_path):
             os.mkdir(current_path)
     return current_path
+
+
+def extract_server_config_from_connection_string(connection_string: str) -> dict:
+    # Regex to extract the server config from the connection string
+    pattern = r"mongodb://(?:(?P<username>[^:@]+)(?::(?P<password>[^@]+))?@)?(?P<host>[^:/]+)(?::(?P<port>\d+))?(?:/(?P<database>[^?]+)?)?(?:\?(?P<options>.+))?"
+    match = re.match(pattern, connection_string)
+    
+    if not match:
+        raise ValueError("Could not parse connection string")
+        
+    # Extract matched groups
+    config = {
+        "username": match.group("username"),
+        "password": match.group("password"), 
+        "host": match.group("host"),
+        "port": int(match.group("port")) if match.group("port") else None,
+        "database": match.group("database"),
+        "replica_set": None,
+        "options": {}
+    }
+
+    # Parse options if present
+    if match.group("options"):
+        options = match.group("options").split("&")
+        for opt in options:
+            key, value = opt.split("=")
+            if key == "replicaSet":
+                config["replica_set"] = value
+            else:
+                config["options"][key] = value
+
+    return config
