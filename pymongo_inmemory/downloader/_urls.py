@@ -1,9 +1,10 @@
 from collections import namedtuple
 import logging
 from typing import Generator
+import warnings
 
 from .._utils import make_semver
-from ._patterns import URLS
+from ._patterns import URLS, WARNING_RANGE
 
 
 logger = logging.getLogger("PYMONGOIM_DOWNLOAD_URL")
@@ -64,6 +65,12 @@ def best_url(
 
     found_version = f"{major}.{minor}.{patch}"
     logger.info(f"Requested MongoDB version {version}, found version: {found_version}")
+
+    major_minor = f"{major}.{minor}"
+    if major_minor in WARNING_RANGE:
+        if minor in WARNING_RANGE[major_minor]:
+            warnings.warn(f"MongoDB version {found_version} has known critical issues or is no longer supported.", FutureWarning)
+
     return version_branch[major][minor]["url"].format(found_version), found_version
 
 
