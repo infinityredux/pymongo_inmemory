@@ -6,13 +6,19 @@ A mongo mocking library with an ephemeral MongoDB running in memory.
 
 ## What's new?
 
-### v0.6.1
+### v0.6.2
+- Fixed potential error with connections failing (especially on Mongo 7+.)) 
+- Created semver and url reversing helper functions.
+- Started process of updating download patterns (removing obsolete versions and OSes.)
+- Added warning for some versions that are known to have critical vulnerabilities or are out of support.
+- Updated the url check tool to be clearer with error reporting.
+- Reworked the loop in the mongod wrapper to improve replica set handling.
 
+### v0.6.1
 - Fixed incorrect replica set command (mis-read docs.)
 - Updated replica set handling to send initialisation command.
 
 ### v0.6.0
-
 - Refactored designs of the `context` and `mongod` modules with a variety of changes.
 - Implemented a simple mechanism that should (in theory) make this work with a solo replica set. 
 

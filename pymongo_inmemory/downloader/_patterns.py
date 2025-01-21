@@ -28,60 +28,50 @@ PATTERNS = {
     "rhel6": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel62-{}.tgz",
     "rhel5": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel55-{}.tgz",
     "debian11": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian11-{}.tgz",
-    "debian10": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian10-{}.tgz",
-    "debian9": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian92-{}.tgz",
-    "debian8": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian81-{}.tgz",
-    "debian7": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian71-{}.tgz",
     "amazon2023": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon2023-{}.tgz",  # noqa E501
     "amazon2023-arm": "https://fastdl.mongodb.org/linux/mongodb-linux-aarch64-amazon2023-{}.tgz",  # noqa E501
     "amazon2": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon2-{}.tgz",
     "amazon1": "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-{}.tgz",
 }
 
+
 PATCH_RANGE = {
-    "2.6": list(range(13)),
-    "3.0": list(range(16)),
-    "3.2": list(range(23)),
-    "3.2-suse11": list(range(20)),
-    "3.2-ubuntu18": list(range(20, 23)),
-    "3.2-ubuntu16": list(range(7, 23)),
-    "3.2-ubuntu12": list(range(20)),
-    "3.2-sunos5": list(range(15)),
-    "3.2-debian8": list(range(8, 23)),
-    "3.2-debian7": list(range(21)),
-    "3.4": list(range(8)) + list(range(9, 25)),
-    "3.4-suse11": list(range(8)) + list(range(9, 15)),
-    "3.4-ubuntu14": list(range(8)) + list(range(9, 21)) + list(range(23, 25)),
-    "3.4-ubuntu12": list(range(8)) + list(range(9, 15)),
-    "3.4-sunos5": list(range(6)),
-    "3.4-debian7": list(range(8)) + list(range(9, 16)),
-    "3.6": list(range(24)),
-    "3.6-suse11": list(range(3)),
-    "3.6-ubuntu18": list(range(20, 24)),
-    "3.6-ubuntu14": list(range(13)) + list(range(14, 24)),
-    "3.6-ubuntu12": list(range(4)),
-    "3.6-rhel8": list(range(17, 24)),
-    "3.6-debian9": list(range(5, 24)),
-    "3.6-debian7": list(range(6)),
-    "3.6-amazon2": list(range(22, 24)),
-    "4.0": list(range(29)),
-    "4.0-rhel8": list(range(14, 29)),
-    "4.0-ubuntu14": list(range(10)) + list(range(12, 29)),
-    "4.0-ubuntu18": list(range(1, 29)),
-    "4.2": list(range(4)) + list(range(5, 25)),
-    "4.2-suse15": list(range(1, 4)) + list(range(5, 25)),
-    "4.2-rhel8": list(range(1, 4)) + list(range(5, 25)),
-    "4.4-rhel-arm-8": list(range(5, 25)),
-    "4.2-debian10": list(range(1, 4)) + list(range(5, 25)),
-    "4.4": list(range(26)),
-    "5.0": list(range(22)),
-    "5.0-debian11": list(range(8, 22)),
-    # Version 6.0.5 is not suitable for production
-    "6.0": list(range(5)) + list(range(6, 11)),
-    "6.0-rhel9": list(range(4, 11)),
-    "6.0-rhel-arm-9": list(range(7, 11)),
-    "7.0": list(range(3)),
+    # 5.0.30 released on 2024-10-24 
+    "5.0": list(range(31)),
+    "5.0-debian11": list(range(8, 31)),
+
+    # 6.0.19 released on 2024-10-24, 6.0.20 currently "upcoming"
+    # According to original comments:
+    #   Version 6.0.5 is not suitable for production
+    "6.0": list(range(5)) + list(range(6, 21)),
+    "6.0-rhel9": list(range(4, 21)),
+    "6.0-rhel-arm-9": list(range(7, 21)),
+
+    # 7.0.16 released on 2024-12-20
+    "7.0": list(range(0, 17)),
+    # 12 errors
+    # 13 gives 404 on download
+    
+    # 8.0.4 released on 2024-12-09
+    "8.0": list(range(5)),
 }
+
+
+WARNING_RANGE = {
+    # Version 5.x is now end of life
+    # As per: https://www.mongodb.com/docs/v5.0/release-notes/5.0/
+    "5.0": PATCH_RANGE["5.0"],
+    "5.0-debian11": PATCH_RANGE["5.0-debian11"],
+
+    # Version 6.0.14 and below have known critical issues
+    # As per: https://www.mongodb.com/docs/manual/release-notes/6.0/
+    "6.0": list(range(0, 15)),
+
+    # Versions of 7.0.7 and below have known critical issues
+    # As per: https://www.mongodb.com/docs/manual/release-notes/7.0/
+    "7.0": list(range(0, 8)), 
+}
+
 
 # An index of URL patterns and patch ranges. First with OS and second with MongoDB
 # version, because we are limited by the OS we are running on first, MongoDB
@@ -89,38 +79,6 @@ PATCH_RANGE = {
 URLS = {
     "amazon": {
         "1": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["amazon1"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["amazon1"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["amazon1"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["amazon1"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["amazon1"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["amazon1"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["amazon1"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -129,26 +87,6 @@ URLS = {
             },
         },
         "2": {
-            3: {
-                6: {
-                    "patches": PATCH_RANGE["3.6-amazon2"],
-                    "url": PATTERNS["amazon2"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["amazon2"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["amazon2"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["amazon2"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -186,100 +124,6 @@ URLS = {
         },
     },
     "debian": {
-        "7": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["debian7"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2-debian7"],
-                    "url": PATTERNS["debian7"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4-debian7"],
-                    "url": PATTERNS["debian7"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6-debian7"],
-                    "url": PATTERNS["debian7"],
-                },
-            },
-        },
-        "8": {
-            3: {
-                2: {
-                    "patches": PATCH_RANGE["3.2-debian8"],
-                    "url": PATTERNS["debian8"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["debian8"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["debian8"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["debian8"],
-                },
-            },
-        },
-        "9": {
-            3: {
-                6: {
-                    "patches": PATCH_RANGE["3.6-debian9"],
-                    "url": PATTERNS["debian9"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["debian9"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["debian9"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["debian9"],
-                },
-            },
-            5: {
-                0: {
-                    "patches": PATCH_RANGE["5.0"],
-                    "url": PATTERNS["debian9"],
-                },
-            },
-        },
-        "10": {
-            4: {
-                2: {
-                    "patches": PATCH_RANGE["4.2-debian10"],
-                    "url": PATTERNS["debian10"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["debian10"],
-                },
-            },
-            5: {
-                0: {
-                    "patches": PATCH_RANGE["5.0"],
-                    "url": PATTERNS["debian10"],
-                },
-            },
-            6: {
-                0: {
-                    "patches": PATCH_RANGE["6.0"],
-                    "url": PATTERNS["debian10"],
-                },
-            },
-        },
         "11": {
             5: {
                 0: {
@@ -302,85 +146,9 @@ URLS = {
         },
     },
     "rhel": {
-        "5": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["rhel5"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["rhel5"],
-                },
-            },
-        },
         "6": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["rhel6"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["rhel6"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["rhel6"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["rhel6"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["rhel6"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["rhel6"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["rhel6"],
-                },
-            },
         },
         "7": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["rhel7"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["rhel7"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["rhel7"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["rhel7"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["rhel7"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["rhel7"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["rhel7"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -401,26 +169,6 @@ URLS = {
             },
         },
         "8": {
-            3: {
-                6: {
-                    "patches": PATCH_RANGE["3.6-rhel8"],
-                    "url": PATTERNS["rhel8"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0-rhel8"],
-                    "url": PATTERNS["rhel8"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2-rhel8"],
-                    "url": PATTERNS["rhel8"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["rhel8"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -457,12 +205,6 @@ URLS = {
     },
     "rhel-arm": {
         "8": {
-            4: {
-                4: {
-                    "patches": PATCH_RANGE["4.4-rhel-arm-8"],
-                    "url": PATTERNS["rhel-arm-8"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -499,54 +241,8 @@ URLS = {
     },
     "suse": {
         "11": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["suse11"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2-suse11"],
-                    "url": PATTERNS["suse11"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4-suse11"],
-                    "url": PATTERNS["suse11"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6-suse11"],
-                    "url": PATTERNS["suse11"],
-                },
-            },
         },
         "12": {
-            3: {
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["suse12"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["suse12"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["suse12"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["suse12"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["suse12"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["suse12"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -567,16 +263,6 @@ URLS = {
             },
         },
         "15": {
-            4: {
-                2: {
-                    "patches": PATCH_RANGE["4.2-suse15"],
-                    "url": PATTERNS["suse15"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["suse15"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -598,103 +284,11 @@ URLS = {
         },
     },
     "ubuntu": {
-        "12": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["ubuntu12"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2-ubuntu12"],
-                    "url": PATTERNS["ubuntu12"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4-ubuntu12"],
-                    "url": PATTERNS["ubuntu12"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6-ubuntu12"],
-                    "url": PATTERNS["ubuntu12"],
-                },
-            },
-        },
         "14": {
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["ubuntu14"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["ubuntu14"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4-ubuntu14"],
-                    "url": PATTERNS["ubuntu14"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6-ubuntu14"],
-                    "url": PATTERNS["ubuntu14"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0-ubuntu14"],
-                    "url": PATTERNS["ubuntu14"],
-                },
-            },
         },
         "16": {
-            3: {
-                2: {
-                    "patches": PATCH_RANGE["3.2-ubuntu16"],
-                    "url": PATTERNS["ubuntu16"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["ubuntu16"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["ubuntu16"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["ubuntu16"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["ubuntu16"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["ubuntu16"],
-                },
-            },
         },
         "18": {
-            3: {
-                6: {
-                    "patches": PATCH_RANGE["3.6-ubuntu18"],
-                    "url": PATTERNS["ubuntu18"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0-ubuntu18"],
-                    "url": PATTERNS["ubuntu18"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["ubuntu18"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["ubuntu18"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -709,12 +303,6 @@ URLS = {
             },
         },
         "20": {
-            4: {
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["ubuntu20"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -751,12 +339,6 @@ URLS = {
     },
     "ubuntu-arm": {
         "20": {
-            4: {
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["ubuntu-arm-20"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -793,78 +375,10 @@ URLS = {
     },
     "linux": {
         "generic": {
-            2: {
-                6: {
-                    "patches": PATCH_RANGE["2.6"],
-                    "url": PATTERNS["linux"],
-                },
-            },
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["linux"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["linux"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["linux"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["linux"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["linux"],
-                },
-            },
         },
     },
     "osx": {
         "generic": {
-            2: {
-                6: {
-                    "patches": PATCH_RANGE["2.6"],
-                    "url": PATTERNS["osx"],
-                },
-            },
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["osx"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["osx-ssl"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["osx-ssl"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["osx-ssl"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["osx-ssl"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["4.2"],
-                    "url": PATTERNS["macos"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["4.4"],
-                    "url": PATTERNS["macos"],
-                },
-            },
             5: {
                 0: {
                     "patches": PATCH_RANGE["5.0"],
@@ -880,6 +394,12 @@ URLS = {
             7: {
                 0: {
                     "patches": PATCH_RANGE["7.0"],
+                    "url": PATTERNS["macos"],
+                },
+            },
+            8: {
+                0: {
+                    "patches": PATCH_RANGE["8.0"],
                     "url": PATTERNS["macos"],
                 },
             },
@@ -899,63 +419,16 @@ URLS = {
                     "url": PATTERNS["macos-arm"],
                 },
             },
-        },
-    },
-    "sunos": {
-        "5": {
-            2: {
-                6: {
-                    "patches": PATCH_RANGE["2.6"],
-                    "url": PATTERNS["sunos5"],
-                },
-            },
-            3: {
+            8: {
                 0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["sunos5"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2-sunos5"],
-                    "url": PATTERNS["sunos5"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4-sunos5"],
-                    "url": PATTERNS["sunos5"],
+                    "patches": PATCH_RANGE["8.0"],
+                    "url": PATTERNS["macos-arm"],
                 },
             },
         },
     },
     "windows": {
         "generic": {
-            2: {
-                6: {"patches": PATCH_RANGE["2.6"], "url": PATTERNS["windows32-x86_64"]},
-            },
-            3: {
-                0: {
-                    "patches": PATCH_RANGE["3.0"],
-                    "url": PATTERNS["windows-2008plus-ssl"],
-                },
-                2: {
-                    "patches": PATCH_RANGE["3.2"],
-                    "url": PATTERNS["windows-2008plus-ssl"],
-                },
-                4: {
-                    "patches": PATCH_RANGE["3.4"],
-                    "url": PATTERNS["windows-2008plus-ssl"],
-                },
-                6: {
-                    "patches": PATCH_RANGE["3.6"],
-                    "url": PATTERNS["windows-2008plus-ssl"],
-                },
-            },
-            4: {
-                0: {
-                    "patches": PATCH_RANGE["4.0"],
-                    "url": PATTERNS["windows-2008plus-ssl"],
-                },
-                2: {"patches": PATCH_RANGE["4.2"], "url": PATTERNS["windows-2012plus"]},
-                4: {"patches": PATCH_RANGE["4.4"], "url": PATTERNS["windows-x86_64"]},
-            },
             5: {
                 0: {"patches": PATCH_RANGE["5.0"], "url": PATTERNS["windows-x86_64"]},
             },

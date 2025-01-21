@@ -183,19 +183,19 @@ if __name__ == "__main__":
 
     logging.info("All checks done.")
 
-    logging.warning("==== FAILED CHECKS ====")
-    for x in failed:
-        x: ExpandedURL = x
-        logging.warning(
-            " ".join(
-                [
-                    x.os_name,
-                    x.os_version,
-                    x.version,
-                    x.url,
-                ]
-            )
-        )
-    logging.warning("==== / FAILED CHECKS ====")
     if len(failed) > 0:
+        logging.warning("==== FAILED CHECKS ====")
+        for x in failed:
+            x: ExpandedURL = x
+            logging.warning(
+                " ".join(
+                    [
+                        x.os_name,
+                        x.os_version,
+                        x.version,
+                        x.url,
+                    ]
+                )
+            )
+        logging.warning("==== / FAILED CHECKS ====")
         exit(1)
