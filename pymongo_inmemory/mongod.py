@@ -56,10 +56,11 @@ class MongodConfig:
     @property
     def port(self) -> str | None:
         set_port = self._context.mongod_port
+        offset = self._context.mongod_port_offset
         if set_port is None:
-            return str(find_open_port(range(27017, 28000)))
+            return str(find_open_port(range(27017, 28000)) + offset)
         else:
-            return str(set_port)
+            return str(set_port + offset)
 
     @property
     def replica_set(self) -> str | None:
