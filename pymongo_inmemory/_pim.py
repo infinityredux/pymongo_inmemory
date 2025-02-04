@@ -5,8 +5,15 @@ from .context import Context
 
 
 class MongoClient(pymongo.MongoClient):
-    def __init__(self, host=None, port=None, **kwargs):
-        self._pim_context: Context = Context()
+    def __init__(
+            self,
+            host: str | None = None,
+            port: int | None = None,
+            *,
+            port_offset: int = 0,
+            **kwargs
+    ):
+        self._pim_context: Context = Context(port_offset=port_offset)
         if port is not None:
             self._pim_context.mongod_port = port
         if host is not None:

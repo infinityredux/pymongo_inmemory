@@ -112,9 +112,11 @@ class Context:
             version=None,
             os_ver=None,
             ignore_cache: bool = False,
+            port_offset: int = 0,
     ) -> None:
         self.mongo_version: str | None = conf("mongo_version", version)
         self.mongod_port: int | None = conf("mongod_port", None, coerce_with=int)
+        self.mongod_port_offset: int = port_offset
         self.mongod_data_folder: str | None = conf("mongod_data_folder", None)
         self.dbname: str = conf("dbname", "pim_test")
         self.mongo_client_host: str | None = conf("mongo_client_host", None)
