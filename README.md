@@ -6,6 +6,11 @@ A mongo mocking library with an ephemeral MongoDB running in memory.
 
 ## What's new?
 
+### v0.6.3
+- Added `port_offset` parameters, to facilitate running multiple mongo instances 
+  in parallel when starting at the same time. (If they all start simultaneously, 
+  then all will select the first open port, which causes errors.)
+
 ### v0.6.2
 - Fixed potential error with connections failing (especially on Mongo 7+.)) 
 - Created semver and url reversing helper functions.
